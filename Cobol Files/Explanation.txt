@@ -1,0 +1,209 @@
+Sure! Below are COBOL files for different **use cases**, which you can use to test your **COBOL to Java Spring Boot microservices converter**.  
+
+---
+
+### **1️⃣ COBOL File for API Handling (CICS Transaction)**
+📌 **Scenario:** This COBOL program interacts with a CICS transaction to fetch customer details.  
+
+#### **COBOL File: `CICS_API.CBL`**
+```cobol
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. GET-CUSTOMER.
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-CUST-ID          PIC X(10).
+       01  WS-CUST-NAME        PIC X(50).
+       01  WS-RESPONSE         PIC X(100).
+
+       PROCEDURE DIVISION.
+       MAIN-LOGIC.
+           DISPLAY 'Enter Customer ID: '.
+           ACCEPT WS-CUST-ID.
+
+           EXEC CICS READ
+               DATASET('CUSTOMER-FILE')
+               INTO(WS-CUST-NAME)
+               RIDFLD(WS-CUST-ID)
+               END-EXEC.
+
+           MOVE 'Customer Name: ' TO WS-RESPONSE.
+           STRING WS-RESPONSE WS-CUST-NAME DELIMITED BY SIZE INTO WS-RESPONSE.
+           DISPLAY WS-RESPONSE.
+           STOP RUN.
+```
+✅ **Expected Conversion:**  
+- **Controller** for API calls  
+- **Service Layer** for business logic  
+- **Repository Layer** if database involved  
+- **Mainframe integration using APIs**  
+
+---
+
+### **2️⃣ COBOL File for Batch Processing**
+📌 **Scenario:** This COBOL program reads a file, processes data, and writes the output to another file.  
+
+#### **COBOL File: `BATCH_PROCESS.CBL`**
+```cobol
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. FILE-PROCESSOR.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT IN-FILE ASSIGN TO 'INPUT.DAT'
+           ORGANIZATION IS LINE SEQUENTIAL.
+           SELECT OUT-FILE ASSIGN TO 'OUTPUT.DAT'
+           ORGANIZATION IS LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD IN-FILE.
+       01 IN-RECORD.
+           05 IN-NAME PIC X(50).
+           05 IN-AGE  PIC 9(2).
+
+       FD OUT-FILE.
+       01 OUT-RECORD.
+           05 OUT-NAME PIC X(50).
+           05 OUT-MESSAGE PIC X(30).
+
+       WORKING-STORAGE SECTION.
+       01 WS-END-OF-FILE PIC X(3) VALUE 'NO'.
+
+       PROCEDURE DIVISION.
+       MAIN-LOGIC.
+           OPEN INPUT IN-FILE.
+           OPEN OUTPUT OUT-FILE.
+
+           PERFORM UNTIL WS-END-OF-FILE = 'YES'
+               READ IN-FILE INTO IN-RECORD
+                   AT END MOVE 'YES' TO WS-END-OF-FILE
+                   NOT AT END
+                       MOVE IN-NAME TO OUT-NAME
+                       MOVE 'Processed Successfully' TO OUT-MESSAGE
+                       WRITE OUT-RECORD
+               END-READ
+           END-PERFORM.
+
+           CLOSE IN-FILE.
+           CLOSE OUT-FILE.
+           STOP RUN.
+```
+✅ **Expected Conversion:**  
+- **Spring Batch or Quartz Scheduler** for batch job processing  
+- **Service Layer** for business logic  
+- **Repository Layer** for file handling  
+
+---
+
+### **3️⃣ COBOL File for DB2 Database Handling**
+📌 **Scenario:** A COBOL program retrieves a customer from a DB2 database and displays the result.  
+
+#### **COBOL File: `DB2_QUERY.CBL`**
+```cobol
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. CUSTOMER-LOOKUP.
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       EXEC SQL INCLUDE SQLCA END-EXEC.
+
+       01 WS-CUST-ID          PIC X(10).
+       01 WS-CUST-NAME        PIC X(50).
+
+       PROCEDURE DIVISION.
+       MAIN-LOGIC.
+           DISPLAY 'Enter Customer ID: '.
+           ACCEPT WS-CUST-ID.
+
+           EXEC SQL
+               SELECT NAME INTO :WS-CUST-NAME
+               FROM CUSTOMER_TABLE
+               WHERE ID = :WS-CUST-ID
+           END-EXEC.
+
+           DISPLAY 'Customer Name: ' WS-CUST-NAME.
+           STOP RUN.
+```
+✅ **Expected Conversion:**  
+- **Spring Data JPA Repository** for database access  
+- **Service Layer** for business logic  
+- **Controller** for exposing API  
+
+---
+
+### **4️⃣ COBOL File for Message Queue (MQ) Processing**
+📌 **Scenario:** A COBOL program reads messages from an IBM MQ queue and processes them.  
+
+#### **COBOL File: `MQ_PROCESSING.CBL`**
+```cobol
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. MQ-RECEIVER.
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-MQ-MSG      PIC X(100).
+
+       PROCEDURE DIVISION.
+       MAIN-LOGIC.
+           EXEC CICS GET
+               QUEUE('ORDER-QUEUE')
+               INTO(WS-MQ-MSG)
+               LENGTH(100)
+           END-EXEC.
+
+           DISPLAY 'Received MQ Message: ' WS-MQ-MSG.
+           STOP RUN.
+```
+✅ **Expected Conversion:**  
+- **Spring Boot Messaging (IBM MQ, Kafka, JMS)**  
+- **Service Layer** to process MQ messages  
+- **Queue Listener Configuration**  
+
+---
+
+### **5️⃣ COBOL File for Authentication & Security**
+📌 **Scenario:** A COBOL program checks user credentials before allowing access.  
+
+#### **COBOL File: `AUTH_CHECK.CBL`**
+```cobol
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. LOGIN.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-USERNAME       PIC X(20).
+       01 WS-PASSWORD       PIC X(20).
+       01 WS-VALID-USER     PIC X(3) VALUE 'NO'.
+
+       PROCEDURE DIVISION.
+       MAIN-LOGIC.
+           DISPLAY 'Enter Username: '.
+           ACCEPT WS-USERNAME.
+           DISPLAY 'Enter Password: '.
+           ACCEPT WS-PASSWORD.
+
+           IF WS-USERNAME = 'ADMIN' AND WS-PASSWORD = 'SECRET'
+               MOVE 'YES' TO WS-VALID-USER
+               DISPLAY 'Login Successful'
+           ELSE
+               DISPLAY 'Invalid Credentials'.
+           STOP RUN.
+```
+✅ **Expected Conversion:**  
+- **Spring Security Implementation**  
+- **JWT-based authentication system**  
+- **Role-based access control**  
+
+---
+
+### **Final Thoughts**  
+These **five COBOL test files** cover:  
+✔ **API Handling (CICS Transactions)**  
+✔ **Batch Processing (Spring Batch, Quartz Scheduler)**  
+✔ **DB2 Database Access (Spring Data JPA)**  
+✔ **Message Queue Processing (IBM MQ, Kafka, JMS)**  
+✔ **Security & Authentication (Spring Security, JWT)**  
+
+You can now **test each use case** with your COBOL-to-Java **conversion tool** and ensure **Spring Boot microservices** are correctly generated for each scenario. 🚀  
+
+Would you like **sample Java Spring Boot output** for any of these? 😊

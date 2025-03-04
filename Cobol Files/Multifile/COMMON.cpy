@@ -1,0 +1,1 @@
+       01 WS-VALUE PIC X(20) VALUE "DEFAULT".
